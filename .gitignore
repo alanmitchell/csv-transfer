@@ -1,0 +1,12 @@
+settings.py
+last_post_time
+*.sqlite
+*.pyc
+*.log
+*.log.*
+*.gz
+*.bak
+.idea
+*.sublime-project
+*.sublime-workspace
+*.last_ts

@@ -1,6 +1,6 @@
 # csv-transfer
 
-##### Copyright (c) 2014, Alaska Housing Finance Corporation.  All Rights Reserved.
+##### Copyright (c) 2016, Analysis North.  All Rights Reserved.
 
 This script reads CSV files that hold time-stamped records of sensor or other numeric values and then
 posts or exports those records to web services or other consumers of such records.  The script allows

@@ -1,18 +1,20 @@
-# Configuration file for csv_to_bmon.py.  This file is in YAML format,
+# Configuration file for csv_transfer.py.  This file is in YAML format,
 # see http://camel.readthedocs.io/en/latest/yamlref.html
 
-# interval in seconds to check for new data
+# True / False.  if True, script runs only once and does not repeatedly
+# check for new or updated CSV files.
+run_once: True
+
+# If run_once is True, this parameter tells script how many seconds to 
+# wait before exiting.
+run_once_wait_before_stop: 1
+
+# interval in seconds to check for new data, if running continuously
 check_interval: 30
 
 # Logging level for the application.  Should be one of the following
 # strings:  CRITICAL, ERROR, WARNING, INFO, DEBUG
 logging_level: INFO
-
-# BMON URL to post records to
-bmon_url: https://bmon.analysisnorth.com/store/
-
-# BMON Store key needed for storing records
-bmon_store_key: xyz123
 
 # list of file parsing specifications.  For each spec, 'file_glob' 
 # is required and must be a pattern compatible with the Python 
@@ -26,3 +28,9 @@ csv_files:
     field_map: "lambda nm: '_'.join(nm.split('_')[:2])"
     ts_tz: America/Anchorage
     exclude_fields: [RECORD]
+
+# List of consumers of the CSV records
+consumers:
+  - class_name: bmon_poster.BMONposter
+    bmon_url: https://bmon.analysisnorth.com/store/
+    bmon_store_key: xyz123

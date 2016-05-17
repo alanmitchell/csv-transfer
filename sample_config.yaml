@@ -4,6 +4,10 @@
 # interval in seconds to check for new data
 check_interval: 30
 
+# Logging level for the application.  Should be one of the following
+# strings:  CRITICAL, ERROR, WARNING, INFO, DEBUG
+logging_level: INFO
+
 # BMON URL to post records to
 bmon_url: https://bmon.analysisnorth.com/store/
 

@@ -21,11 +21,47 @@ import csv_reader
 # change into this directory
 os.chdir(os.path.dirname(__file__))
 
-# get a logger for error logging
-logger = logging.getLogger('csv_to_bmon')
+# The full directory path to this script file
+APP_PATH = realpath(dirname(__file__))
 
-# configuration file name
+# configuration file name, 1st command line argument
 config_fn = sys.argv[1]
+
+# load configuration file describing general operation of this script
+# and the files to be loaded.
+config = yaml.load(open(config_fn))
+
+# ----- Setup Exception/Debug Logging for the Application
+
+# Log file for the application.
+LOG_FILE = '/var/log/pi_log.log'
+
+# Use the root logger for the application.
+
+# set the log level. Because we are setting this on the logger, it will apply
+# to all handlers (unless maybe you set a specific level on a handler?).
+# defaults to INFO if a bad entry in the config file.
+logging.root.setLevel(getattr(logging, config['logging_level'].upper(), 20))
+
+# stop propagation of messages from the 'requests' module
+logging.getLogger('requests').propagate = False
+
+# create a rotating file handler
+fh = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=200000, backupCount=5)
+
+# create formatter and add it to the handler
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+fh.setFormatter(formatter)
+
+# create a handler that will print to console as well.
+console_h = logging.StreamHandler()
+console_h.setFormatter(formatter)
+
+# add the handlers to the logger
+logging.root.addHandler(fh)
+logging.root.addHandler(console_h)
+
+# -------------------
 
 # load the times of the last record loaded for each file
 # The keys of the dictionary are file names and the values
@@ -37,10 +73,6 @@ if os.path.exists(last_ts_fn):
     last_ts_map = pickle.load(open(last_ts_fn, 'rb'))
 else:
     last_ts_map = {}
-
-# load configuration file describing general operation of this script
-# and the files to be loaded.
-config = yaml.load(open(config_fn))
 
 while True:
 

@@ -78,11 +78,6 @@ try:
     else:
         last_ts_map = {}
 
-except:
-    logging.exception('Error in Script Initialization.')
-    sys.exit()
-
-try:
     consumers = []
     for consumer in config['consumers']:
 
@@ -104,8 +99,9 @@ try:
 
         except:
             logging.exception('Error starting the Consumer %s' % consumer)
+
 except:
-    logging.exception('Error creating Consumers')
+    logging.exception('Error in Script Initialization.')
     sys.exit()
 
 while True:
@@ -118,29 +114,33 @@ while True:
                 file_pattern = spec.pop('file_glob')
                 for fn in glob.glob(file_pattern):
 
-                    # Files and records must be newer than this timestamp
-                    min_ts = last_ts_map.get(fn, 0)
+                    try:
+                        # Files and records must be newer than this timestamp
+                        min_ts = last_ts_map.get(fn, 0)
 
-                    # get the Unix timestamp indicating when file was last modified,
-                    # and don't process if this file was modified prior to last record
-                    # stored.
-                    mod_time = os.stat(fn).st_mtime
-                    if mod_time <= min_ts:
-                        continue
-
-                    recs_processed = 0
-                    for recs, last_ts in csv_reader.CSVReader(fn, **spec):
-                        if last_ts <= min_ts:
+                        # get the Unix timestamp indicating when file was last modified,
+                        # and don't process if this file was modified prior to last record
+                        # stored.
+                        mod_time = os.stat(fn).st_mtime
+                        if mod_time <= min_ts:
                             continue
-                        else:
-                            # filter down to just records past min_ts
-                            recs_filtered = [rec for rec in recs if rec['ts'] > min_ts]
-                            recs_processed += len(recs_filtered)
-                            for consumer in consumers:
-                                consumer(recs_filtered)
-                            last_ts_map[fn] = last_ts
-                    if recs_processed:
-                        logging.info('%s records processed for file %s' % (recs_processed, fn))
+
+                        recs_processed = 0
+                        for recs, last_ts in csv_reader.CSVReader(fn, **spec):
+                            if last_ts <= min_ts:
+                                continue
+                            else:
+                                # filter down to just records past min_ts
+                                recs_filtered = [rec for rec in recs if rec['ts'] > min_ts]
+                                recs_processed += len(recs_filtered)
+                                for consumer in consumers:
+                                    consumer(recs_filtered)
+                                last_ts_map[fn] = last_ts
+                        if recs_processed:
+                            logging.info('%s records processed for file %s' % (recs_processed, fn))
+
+                    except:
+                        logging.exception('Error processing file: %s' % fn)
 
             except:
                 logging.exception('Error processing file spec %s' % spec)

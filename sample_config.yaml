@@ -32,5 +32,6 @@ csv_files:
 # List of consumers of the CSV records
 consumers:
   - class_name: bmon_poster.BMONposter
-    bmon_url: https://bmon.analysisnorth.com/store/
+    poster_id:  an-bmon-01              # unique ID for this posting object
+    bmon_store_url: https://bmon.analysisnorth.com/readingdb/reading/store/
     bmon_store_key: xyz123

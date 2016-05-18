@@ -14,8 +14,11 @@ class CSVReader:
     """This class is used to read CSV files and return chunks of records from those files.
     One of the fields (columns) in the file must be a timestamp column, and that field is
     returned as a UNIX timestamp (seconds from the epoch).  All other fields that are to
-    be included must be convertible to a float number.  So, each record returned has a Unix
-    timestamp and a number of fields, each of which is a floating point number.
+    be included are converted to a float number; if the field value is not a number,
+    that field is deleted from the returned record (but may occur in other records, if
+    valid numeric values are present in those records).
+    Thus, each record returned has a Unix timestamp and a number of fields, each of which is a
+    floating point number.
 
     The object created from this class is iterable, with each iteration returning a two
     tuple:
@@ -152,7 +155,11 @@ class CSVReader:
 
                     # convert all fields to floats (redundant for 'ts' field)
                     for k, v in rec.items():
-                        rec[k] = float(v)
+                        try:
+                            rec[k] = float(v)
+                        except:
+                            # if value isn't a number, drop this field in this record
+                            del rec[k]
 
                     recs.append(rec)
 

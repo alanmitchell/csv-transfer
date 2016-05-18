@@ -7,7 +7,7 @@ run_once: True
 
 # If run_once is True, this parameter tells script how many seconds to 
 # wait before exiting.
-run_once_wait_before_stop: 1
+run_once_wait_before_stop: 15
 
 # interval in seconds to check for new data, if running continuously
 check_interval: 30

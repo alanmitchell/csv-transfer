@@ -9,6 +9,19 @@ THIS_FOLDER = os.path.dirname(__file__)
 
 
 class BMONposter:
+    '''Class to accept a list of timestamped records and post them to a BMON
+    web site.  
+
+    Parameters
+    ----------
+    post_id:  A unique ID for this BMON poster object, which is used to create file
+        names for storing records and recording the last time a record was
+        successfully posted.
+    bmon_store_url:  The full BMON URL endpoint to post the reords to, for example
+        https://bmon.analysisnorth.com/readingdb/reading/store/
+    bmon_store_key:  The BMON store key, used for authentication with this particular
+        BMON site.
+    '''
 
     def __init__(self, poster_id, bmon_store_url, bmon_store_key):
 
@@ -20,6 +33,11 @@ class BMONposter:
         self.bmon_store_key = bmon_store_key
 
     def __call__(self, recs):
+        '''Method called to post records. 'recs' is a list of dictionaries, each
+        dictionary being one record.  A record has a 'ts' field with a Unix timestamp
+        and a variable number of other floating-point fields containing sensor or
+        measured data.
+        '''
 
         # create a separate post record for each field in each record
         readings = []

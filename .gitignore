@@ -12,4 +12,4 @@ last_post_time
 *.sublime-project
 *.sublime-workspace
 *.last_ts
-.ipynb_checkpoints/*
+*.ipynb

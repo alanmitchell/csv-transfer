@@ -2,7 +2,6 @@
 """Script to monitor and read CSV files and post records to BMON.
 
 *** TO DO
-- Implement Logging
 """
 
 import os

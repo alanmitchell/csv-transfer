@@ -2,11 +2,7 @@
 """Script to monitor and read CSV files and post records to BMON.
 
 *** TO DO
-- Implement Loging
-- Implement a list of "consumers" to use the records.
-    - Have a new section in the config file for consumers, each with any custom
-      initialization parameters.  Use the __call__ function to process the
-      records in the consumer.
+- Implement Logging
 """
 
 import os

@@ -1,7 +1,5 @@
 #!/usr/bin/python2.7
 """Script to monitor and read CSV files and post records to BMON.
-
-*** TO DO
 """
 
 import os

@@ -3,6 +3,7 @@
 import csv
 import calendar
 import logging
+import math
 import pytz
 from dateutil import parser
 
@@ -150,6 +151,9 @@ class CSVReader:
                         dt = tstz.localize(dt)
                         rec['ts'] = calendar.timegm(dt.utctimetuple())
 
+                    if math.isnan(['ts']):
+                        raise ValueError('Timestamp cannot be NaN.')
+
                     # remember last timestamp.
                     last_ts = rec['ts']
 
@@ -157,6 +161,9 @@ class CSVReader:
                     for k, v in rec.items():
                         try:
                             rec[k] = float(v)
+                            # do not include NaN values
+                            if math.isnan(rec[k]):
+                                del rec[k]
                         except:
                             # if value isn't a number, drop this field in this record
                             del rec[k]

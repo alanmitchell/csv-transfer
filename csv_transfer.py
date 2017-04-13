@@ -1,5 +1,12 @@
 #!/usr/bin/python2.7
 """Script to monitor and read CSV files and post records to BMON.
+
+Usage:
+
+    csv_transfer.py CONFIG_FILE
+
+where CONFIG_FILE is the full path name of the script's configuration file,
+in YAML form.  See README.md for more details.
 """
 
 import os

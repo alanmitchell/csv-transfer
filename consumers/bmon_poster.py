@@ -14,7 +14,7 @@ class BMONposter:
 
     Parameters
     ----------
-    post_id:  A unique ID for this BMON poster object, which is used to create file
+    poster_id:  A unique ID for this BMON poster object, which is used to create file
         names for storing records and recording the last time a record was
         successfully posted.
     bmon_store_url:  The full BMON URL endpoint to post the reords to, for example

@@ -63,7 +63,7 @@ class CSVReader:
         function is applied to all of the field names found in the header row.
     exclude_fields:  A list of field names to exclude from the final records returned.
     **csv_params:  Any other keyword arguments found are passed along to the csv.Reader
-        initialization function and can be used to correctly specify delimeters and
+        initialization function and can be used to correctly specify delimiters and
         quoting formats found in the CSV file.
     """
 

@@ -6,7 +6,7 @@ Usage:
     csv_transfer.py CONFIG_FILE
 
 where CONFIG_FILE is the full path name of the script's configuration file,
-in YAML form.  See README.md for more details.
+See README.md for more details.
 """
 
 import os

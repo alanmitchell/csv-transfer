@@ -54,16 +54,20 @@ Here is an extract from the documentation of the constructor parameters of the `
         of records.
     ts_field:  The name of the field that is the timestamp field.  Default value is None,
         which means that the timestamp field is the first field (column) in the CSV file.
-        The timestamp field can be expressed as a Unix timestamp in seconds past the epoch, or the field can be a date/time string that is able to be parsed by dateutil.parser.parse.
+        The timestamp field can be expressed as a Unix timestamp in seconds past the epoch, 
+        or the field can be a date/time string that is able to be parsed by 
+        dateutil.parser.parse.
     ts_tz:  The timezone from the Olson database of the timestamps found in the CSV file.
         If the timestamp in the file is a floating point number, it is assumed to already
         be a Unix timestamp expressed in seconds past the UTC epoch.  For string
         timestamps, this parameter is relevant and defaults to "UTC".  An example of
         another suitable value is "America/Anchorage".
     field_names:  This is a list of field names to assign to each column in the CSV file.
-        If this list is empty (the default), the class looks to the Header row in the file to determine field names.
+        If this list is empty (the default), the class looks to the Header row in the file 
+        to determine field names.
     header_rows:  This is the number of rows at the beginning of the file that do not
-        contain records.  The default value is 1.  These header rows may or may not contain a field names row.  These rows are read out of the file before processing records.
+        contain records.  The default value is 1.  These header rows may or may not contain
+        a field names row.  These rows are read out of the file before processing records.
     name_row:  This gives the row number where the field names are located; the first row
         is row number 1, and the default value is 1.  If the 'field_names' list is
         populated than this 'name_row' value is ignored.

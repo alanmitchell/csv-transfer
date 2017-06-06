@@ -106,6 +106,9 @@ except:
     logging.exception('Error in Script Initialization.')
     sys.exit()
 
+# This dictionary maps 'file_type' to a class that is used to read the file.
+reader_type_to_class = {'generic': readers.csv_reader.CSVReader}
+
 while True:
 
     try:
@@ -114,6 +117,8 @@ while True:
 
             try:
                 file_pattern = spec.pop('file_glob')
+                file_type = spec.pop('file_type', 'generic')
+                reader_class = reader_type_to_class[file_type]
                 for fn in glob.glob(file_pattern):
 
                     try:
@@ -128,7 +133,7 @@ while True:
                             continue
 
                         recs_processed = 0
-                        for recs, last_ts in readers.csv_reader.CSVReader(fn, **spec):
+                        for recs, last_ts in reader_class(fn, **spec):
                             if last_ts <= min_ts:
                                 continue
                             else:

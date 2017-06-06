@@ -19,6 +19,7 @@ import sys
 import time
 import yaml
 
+import consumers.bmon_poster
 import readers.csv_reader
 import readers.siemens
 
@@ -81,24 +82,17 @@ try:
     else:
         last_ts_map = {}
 
-    consumers = []
+    targets = []
+    # This dictionary maps 'consumer_type' to the class that implements
+    # the consumer.
+    consumer_type_to_class = {'bmon': consumers.bmon_poster.BMONposter}
+
     for consumer in config['consumers']:
 
         try:
-            # Dynamically import the module containing the consumer class
-
-            # pull the class name out of the dictionary.  What remains are the
-            # initialization parameters
-            class_name = consumer.pop('class_name')
-
-            # all of these modules are located in the 'consumers' folder
-            parts = ('consumers.' + class_name).split('.')
-            mod = __import__('.'.join(parts[:-1]), fromlist=[parts[-1]])
-
-            # get the consumer class, instantiate it and add it to the
-            # consumer list.
-            klass = getattr(mod, parts[-1])
-            consumers.append(klass(**consumer))
+            consumer_type = consumer.pop('type', 'bmon')
+            consumer_class = consumer_type_to_class[consumer_type]
+            targets.append(consumer_class(**consumer))
 
         except:
             logging.exception('Error starting the Consumer %s' % consumer)
@@ -142,7 +136,7 @@ while True:
                                 # filter down to just records past min_ts
                                 recs_filtered = [rec for rec in recs if rec['ts'] > min_ts]
                                 recs_processed += len(recs_filtered)
-                                for consumer in consumers:
+                                for consumer in targets:
                                     consumer(recs_filtered)
                                 last_ts_map[fn] = last_ts
                         if recs_processed:

@@ -9,15 +9,17 @@ where CONFIG_FILE is the full path name of the script's configuration file,
 See README.md for more details.
 """
 
-import os
-import sys
-import time
 import glob
 import logging
 import logging.handlers
+import os
 import pickle
+
+import sys
+import time
 import yaml
-import csv_reader
+
+import readers.csv_reader
 
 # The full directory path to this script file
 APP_PATH = os.path.realpath(os.path.dirname(__file__))
@@ -126,7 +128,7 @@ while True:
                             continue
 
                         recs_processed = 0
-                        for recs, last_ts in csv_reader.CSVReader(fn, **spec):
+                        for recs, last_ts in readers.csv_reader.CSVReader(fn, **spec):
                             if last_ts <= min_ts:
                                 continue
                             else:

@@ -151,7 +151,7 @@ class CSVReader:
                         dt = tstz.localize(dt)
                         rec['ts'] = calendar.timegm(dt.utctimetuple())
 
-                    if math.isnan(['ts']):
+                    if math.isnan(rec['ts']):
                         raise ValueError('Timestamp cannot be NaN.')
 
                     # remember last timestamp.

@@ -112,6 +112,7 @@ while True:
         for spec in config['csv_files']:
 
             try:
+                # get and remove key items from the file spec
                 file_pattern = spec.pop('file_glob')
                 file_type = spec.pop('file_type', 'generic')
                 reader_class = reader_type_to_class[file_type]

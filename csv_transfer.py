@@ -20,6 +20,7 @@ import time
 import yaml
 
 import readers.csv_reader
+import readers.siemens
 
 # The full directory path to this script file
 APP_PATH = os.path.realpath(os.path.dirname(__file__))
@@ -107,7 +108,8 @@ except:
     sys.exit()
 
 # This dictionary maps 'file_type' to a class that is used to read the file.
-reader_type_to_class = {'generic': readers.csv_reader.CSVReader}
+reader_type_to_class = {'generic': readers.csv_reader.CSVReader,
+                        'siemens': readers.siemens.SiemensReader}
 
 while True:
 

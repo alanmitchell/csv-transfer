@@ -105,7 +105,7 @@ except:
 
 # This dictionary maps 'file_type' to a generator function that is used
 # to read the file.
-reader_type_to_func = {'generic': readers.generic.generic_reader,
+file_type_to_func = {'generic': readers.generic.generic_reader,
                        'siemens': readers.siemens.siemens_reader}
 
 while True:
@@ -118,7 +118,7 @@ while True:
                 # get and remove key items from the file spec
                 file_pattern = spec.pop('file_glob')
                 file_type = spec.pop('file_type', 'generic')
-                reader_func = reader_type_to_func[file_type]
+                reader_func = file_type_to_func[file_type]
                 for fn in glob.glob(file_pattern):
 
                     try:

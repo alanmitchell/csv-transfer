@@ -37,7 +37,8 @@ If `run_once` is set to `False`, the script will scan continually to look for up
 This determines how much information will be recorded to the script's log file.  Possible values are `CRITICAL, ERROR, WARNING, INFO, DEBUG`, with `CRITICAL` recording the least amount of information and `DEBUG` recording the most.  The log file is located in the same directory as the `csv_transfer.py` script and has the name `csv_transfer.log`.
 
     csv_files:
-      - file_glob: "*.csv"            
+      - file_glob: "*.csv"
+        file_type: generic
         chunk_size: 10
         header_rows: 4
         name_row: 2
@@ -45,44 +46,20 @@ This determines how much information will be recorded to the script's log file. 
         ts_tz: America/Anchorage
         exclude_fields: [RECORD]
 
-The `csv_files` element in the YAML file allows for entering a list of different file specifications; each specification in the list represents a set of CSV files that will be processed and potentially monitored for changes by the script.  The excerpt from the YAML file above shows one file specification, a spec that processes all CSV files ending with `.csv` that are present in the directory where the script was executed; additional file specs could be entered as additional list elements under the `csv_files` element.  The only required element in a file specification is the `file_glob` entry.  This string (enclosed in double quotes) should be compatible with the Python `glob.glob` function and directs the script to process the files returned by the `glob` function.  The other elements in the file specification are first passed to the constructor of the `csv_reader.CSVReader` class; if an element does not match one of the constructor parameters, it is forwarded on to the `csv.reader` function found in the standard `csv` Python module.  This structure allows for substantial control over how the CSV files are read by this script.
+The `csv_files` element in the YAML file allows for entering a list of different file specifications; each specification in the list represents a set of CSV files that will be processed and potentially monitored for changes by the script.  The excerpt from the YAML file above shows one file specification, a spec that processes all CSV files ending with `.csv` that are present in the directory where the script was executed; additional file specs could be entered as additional list elements under the `csv_files` element.  The only required element in a file specification is the `file_glob` entry.  This string (enclosed in double quotes) should be compatible with the Python `glob.glob` function and directs the script to process the files returned by the `glob` function.
 
-Here is an extract from the documentation of the constructor parameters of the `csv_reader.CSVReader` class, which is the first stop for the elements found in the file specification.
+The `file_type` element in the specification indicates the specific file reader function to be used to read the CSV file.  This element is not required and defaults to the `generic` file reader, which has the ability, with proper configuration, to read a wide variety of CSV files.  The other possible `file_type` currently available is the `siemens` file type; the associated file reader can read CSV files produced by a Siemens building automation system running the Apogee Insight version 5 software.
 
-    chunk_size: The number of records to return with each iteration.  Default is 1.
-        If more than one record is returned, the return value from the iterator is a list
-        of records.
-    ts_field:  The name of the field that is the timestamp field.  Default value is None,
-        which means that the timestamp field is the first field (column) in the CSV file.
-        The timestamp field can be expressed as a Unix timestamp in seconds past the epoch, 
-        or the field can be a date/time string that is able to be parsed by 
-        dateutil.parser.parse.
-    ts_tz:  The timezone from the Olson database of the timestamps found in the CSV file.
-        If the timestamp in the file is a floating point number, it is assumed to already
-        be a Unix timestamp expressed in seconds past the UTC epoch.  For string
-        timestamps, this parameter is relevant and defaults to "UTC".  An example of
-        another suitable value is "America/Anchorage".
-    field_names:  This is a list of field names to assign to each column in the CSV file.
-        If this list is empty (the default), the class looks to the Header row in the file 
-        to determine field names.
-    header_rows:  This is the number of rows at the beginning of the file that do not
-        contain records.  The default value is 1.  These header rows may or may not contain
-        a field names row.  These rows are read out of the file before processing records.
-    name_row:  This gives the row number where the field names are located; the first row
-        is row number 1, and the default value is 1.  If the 'field_names' list is
-        populated than this 'name_row' value is ignored.
-    field_map:  This is a dictionary or a lambda function expressed as a string that is
-        used to convert the field names found in a header row.  The dictionary maps
-        original names to new names; it need not cover all original names.  Names not
-        present in the dictionary are kept the same.  If 'field_map' is a string, then it
-        should be a lambda function; it is processed with 'eval', and the resulting
-        function is applied to all of the field names found in the header row.
-    exclude_fields:  A list of field names to exclude from the final records returned.
-    **csv_params:  Any other keyword arguments found are passed along to the csv.Reader
-        initialization function and can be used to correctly specify delimiters and
-        quoting formats found in the CSV file.
+Each `file_type` has an associated file reader function found in the `readers` package subdirectory of this project.  The `generic` file type uses the `readers.generic.generic_reader` function to read the CSV files.  The `siemens` file type uses the `readers.siemens.siemens_reader` function to read the CSV files.  Other file types can be added by writing an appropriate file reader function and then adding an element to the file_type-to-function dictionary found in the `csv_transfer.py` file:
 
-The `csv_files` element, described above, controls which CSV files are read by the script.  After these CSV files are read and parsed, they are passed on to one or more consumers of the time-stamped records.  Currently, there is one consumer available in this project, a class that knows how to take the records and post the data to the [BMON Web-based Sensor Analysis software](https://github.com/alanmitchell/bmon).  Below is the `consumers` portion of the configuration file, which holds a list of one or more record consumers.  The example below has one consumer, which directs the script to send the records to the `bmon_poster` consumer:
+    # This dictionary maps 'file_type' to a generator function that is used
+    # to read the file.
+    file_type_to_func = {'generic': readers.generic.generic_reader,
+                         'siemens': readers.siemens.siemens_reader}
+
+The elements in the file specification aside from `file_glob` and `file_type` are first passed to the file reader function associated with the `file_type`.  See the documentation of the parameter list for the reader function to see what elements are possible. In the example specification above, the `chunk_size`, `header_rows`, `name_row`, `field_map`, `ts_tz` and `exclude_fields` elements are passed to the `readers.generic.generic_reader` function.  If an element does not match one of the parameters of the reader function, it is forwarded on to the `csv.reader` function found in the standard `csv` Python module.  This structure allows for substantial control over how the CSV files are read by this script.
+
+The `file_glob` element, described above, controls which CSV files are read by the script.  After these CSV files are read and parsed, they are passed on to one or more consumers of the time-stamped records.  Currently, there is one consumer available in this project, a class that knows how to take the records and post the data to the [BMON Web-based Sensor Analysis software](https://github.com/alanmitchell/bmon).  Below is the `consumers` portion of the configuration file, which holds a list of one or more record consumers.  The example below has one consumer, which directs the script to send the records to the `bmon_poster` consumer:
 
     consumers:
       - class_name: bmon_poster.BMONposter

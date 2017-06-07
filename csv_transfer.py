@@ -1,5 +1,7 @@
 #!/usr/bin/python2.7
-"""Script to monitor and read CSV files and post records to BMON.
+"""Script to monitor and read CSV files containing timestamped records
+and post those records to consumers such as the BMON web-based sensor analysis
+package (see https://github.com/alanmitchell/bmon).
 
 Usage:
 
@@ -19,7 +21,9 @@ import sys
 import time
 import yaml
 
-import readers.csv_reader
+import consumers.bmon_poster
+import readers.generic
+import readers.siemens
 
 # The full directory path to this script file
 APP_PATH = os.path.realpath(os.path.dirname(__file__))
@@ -80,24 +84,17 @@ try:
     else:
         last_ts_map = {}
 
-    consumers = []
+    targets = []
+    # This dictionary maps 'consumer_type' to the class that implements
+    # the consumer.
+    consumer_type_to_class = {'bmon': consumers.bmon_poster.BMONposter}
+
     for consumer in config['consumers']:
 
         try:
-            # Dynamically import the module containing the consumer class
-
-            # pull the class name out of the dictionary.  What remains are the
-            # initialization parameters
-            class_name = consumer.pop('class_name')
-
-            # all of these modules are located in the 'consumers' folder
-            parts = ('consumers.' + class_name).split('.')
-            mod = __import__('.'.join(parts[:-1]), fromlist=[parts[-1]])
-
-            # get the consumer class, instantiate it and add it to the
-            # consumer list.
-            klass = getattr(mod, parts[-1])
-            consumers.append(klass(**consumer))
+            consumer_type = consumer.pop('type', 'bmon')
+            consumer_class = consumer_type_to_class[consumer_type]
+            targets.append(consumer_class(**consumer))
 
         except:
             logging.exception('Error starting the Consumer %s' % consumer)
@@ -106,6 +103,11 @@ except:
     logging.exception('Error in Script Initialization.')
     sys.exit()
 
+# This dictionary maps 'file_type' to a generator function that is used
+# to read the file.
+reader_type_to_func = {'generic': readers.generic.generic_reader,
+                       'siemens': readers.siemens.siemens_reader}
+
 while True:
 
     try:
@@ -113,7 +115,10 @@ while True:
         for spec in config['csv_files']:
 
             try:
+                # get and remove key items from the file spec
                 file_pattern = spec.pop('file_glob')
+                file_type = spec.pop('file_type', 'generic')
+                reader_func = reader_type_to_func[file_type]
                 for fn in glob.glob(file_pattern):
 
                     try:
@@ -128,14 +133,14 @@ while True:
                             continue
 
                         recs_processed = 0
-                        for recs, last_ts in readers.csv_reader.CSVReader(fn, **spec):
+                        for recs, last_ts in reader_func(fn, **spec):
                             if last_ts <= min_ts:
                                 continue
                             else:
                                 # filter down to just records past min_ts
                                 recs_filtered = [rec for rec in recs if rec['ts'] > min_ts]
                                 recs_processed += len(recs_filtered)
-                                for consumer in consumers:
+                                for consumer in targets:
                                     consumer(recs_filtered)
                                 last_ts_map[fn] = last_ts
                         if recs_processed:

@@ -25,7 +25,8 @@ logging_level: INFO
 # in the standard Python csv module, allowing for further configuration
 # of the process of reading the csv files.
 csv_files:
-  - file_glob: "*.csv"            
+  - file_glob: "*.csv"
+    file_type: generic
     chunk_size: 10
     header_rows: 4
     name_row: 2
@@ -35,7 +36,7 @@ csv_files:
 
 # List of consumers of the CSV records
 consumers:
-  - class_name: bmon_poster.BMONposter
+  - type: bmon
     poster_id:  an-bmon-01              # unique ID for this posting object
     bmon_store_url: https://bmon.analysisnorth.com/readingdb/reading/store/
     bmon_store_key: xyz123

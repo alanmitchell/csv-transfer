@@ -1,5 +1,7 @@
 #!/usr/bin/python2.7
-"""Script to monitor and read CSV files and post records to BMON.
+"""Script to monitor and read CSV files containing timestamped records
+and post those records to consumers such as the BMON web-based sensor analysis
+package (see https://github.com/alanmitchell/bmon).
 
 Usage:
 

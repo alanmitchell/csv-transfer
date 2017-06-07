@@ -13,17 +13,18 @@ logger = logging.getLogger(__name__)
 
 class CSVReader:
     """This class is used to read CSV files and return chunks of records from those files.
+    A chunk of records is a list of dictionaries, each dictionary being one record.
     One of the fields (columns) in the file must be a timestamp column, and that field is
-    returned as a UNIX timestamp (seconds from the epoch).  All other fields that are to
-    be included are converted to a float number; if the field value is not a number,
-    that field is deleted from the returned record (but may occur in other records, if
-    valid numeric values are present in those records).
+    returned as a UNIX timestamp (seconds from the epoch) and has the key value of 'ts'.
+    All other fields that are to be included are converted to a float number; if the
+    field value is not a number, that field is deleted from the returned record (but may
+    occur in other records, if valid numeric values are present in those records).
     Thus, each record returned has a Unix timestamp and a number of fields, each of which is a
     floating point number.
 
     The object created from this class is iterable, with each iteration returning a two
     tuple:
-        * a set of records, the length of which is determined by 'chunk_size',
+        * a list of records, the length of which is determined by 'chunk_size',
         * the Unix timestamp of the last record in that set.
 
     Example Usage:
@@ -62,6 +63,8 @@ class CSVReader:
         should be a lambda function; it is processed with 'eval', and the resulting
         function is applied to all of the field names found in the header row.
     exclude_fields:  A list of field names to exclude from the final records returned.
+        These field names must be written in their final form, i.e. as one of the
+        'field_names' items, or after translation by the 'field_map' parameter.
     **csv_params:  Any other keyword arguments found are passed along to the csv.Reader
         initialization function and can be used to correctly specify delimiters and
         quoting formats found in the CSV file.

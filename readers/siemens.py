@@ -126,7 +126,7 @@ class SiemensReader:
             # point names along the way.
             names = []
             ln = reader.next()
-            while ln[0][:2] != '<>':
+            while ln[0] != '<>Date':
                 if ln[0].startswith('Point_'):
                     names.append(clean_string(ln[1]))
                 ln = reader.next()
@@ -139,30 +139,24 @@ class SiemensReader:
             last_ts = 0
             for row in reader:
 
-                # skip blank rows
-                if not len(row):
+                # skip rows with less than 3 fields
+                if len(row) < 3:
                     continue
 
                 try:
+
                     # make a dictionary from the values, with keys as the field names
-                    rec = dict(zip(names, row))
+                    rec = dict(zip(names, row[2:]))
+
+                    # make the timestamp
+                    dt_str = ' '.join(row[:2])
+                    dt = parser.parse(dt_str)
+                    dt = tstz.localize(dt)
+                    rec['ts'] = calendar.timegm(dt.utctimetuple())
 
                     # remove fields to exclude
                     for fld in self.exclude_fields:
                         rec.pop(fld, None)
-
-                    # make timestamp a Unix epoch timestamp
-                    try:
-                        # assume field is already Unix epoch timestamp
-                        rec['ts'] = float(rec['ts'])
-                    except:
-                        # treat this as a string date
-                        dt = parser.parse(rec['ts'])
-                        dt = tstz.localize(dt)
-                        rec['ts'] = calendar.timegm(dt.utctimetuple())
-
-                    if math.isnan(rec['ts']):
-                        raise ValueError('Timestamp cannot be NaN.')
 
                     # remember last timestamp.
                     last_ts = rec['ts']

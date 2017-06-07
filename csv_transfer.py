@@ -22,7 +22,7 @@ import time
 import yaml
 
 import consumers.bmon_poster
-import readers.csv_reader
+import readers.generic
 import readers.siemens
 
 # The full directory path to this script file
@@ -103,9 +103,10 @@ except:
     logging.exception('Error in Script Initialization.')
     sys.exit()
 
-# This dictionary maps 'file_type' to a class that is used to read the file.
-reader_type_to_class = {'generic': readers.csv_reader.CSVReader,
-                        'siemens': readers.siemens.SiemensReader}
+# This dictionary maps 'file_type' to a generator function that is used
+# to read the file.
+reader_type_to_func = {'generic': readers.generic.generic_reader,
+                       'siemens': readers.siemens.siemens_reader}
 
 while True:
 
@@ -117,7 +118,7 @@ while True:
                 # get and remove key items from the file spec
                 file_pattern = spec.pop('file_glob')
                 file_type = spec.pop('file_type', 'generic')
-                reader_class = reader_type_to_class[file_type]
+                reader_func = reader_type_to_func[file_type]
                 for fn in glob.glob(file_pattern):
 
                     try:
@@ -132,7 +133,7 @@ while True:
                             continue
 
                         recs_processed = 0
-                        for recs, last_ts in reader_class(fn, **spec):
+                        for recs, last_ts in reader_func(fn, **spec):
                             if last_ts <= min_ts:
                                 continue
                             else:

@@ -30,6 +30,7 @@ import math
 import string
 import pytz
 from dateutil import parser
+import reader_util
 
 # the error logger to use for this module
 logger = logging.getLogger(__name__)
@@ -58,8 +59,8 @@ def clean_string(s):
     return fixed
 
 
-def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], exclude_fields=[],
-                 **csv_params):
+def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], field_map={},
+                   exclude_fields=[], **csv_params):
     """This generator function reads CSV report files from a Siemens
     building automation system running Insight (version 5) software.
     The function yields chunks of records from those files.
@@ -95,6 +96,15 @@ def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], exclude_
         spaces and punctuation found in the Point name.  In addition, if that
         substitution results in consecutive underscores, only one underscore is
         retained.
+    field_map:  This is a dictionary or a lambda function expressed as a string that is
+        used to convert the Point names found in the file (if explicit 'field_names' are
+        *not* being used).  The dictionary maps
+        original names to new names; it need not cover all original names.  Names not
+        present in the dictionary are kept the same.  If 'field_map' is a string, then it
+        should be a lambda function; it is processed with 'eval', and the resulting
+        function is applied to all of the field names found in the file, although those
+        field names are first translated as described above to remove whitespace and
+        punctuation.
     exclude_fields:  A list of field names to exclude from the final records returned.
         These field names must be written in their final form, i.e. as one of the
         'field_names' items, or as one of the translated Point names if field_names
@@ -119,10 +129,13 @@ def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], exclude_
                 names.append(clean_string(ln[1]))
             ln = reader.next()
 
-        # if field names are specified, use those.
-        # Strip white space from names.
+        # if field names are specified, use those, removing leading and
+        # trailing whitespace.
         if len(field_names):
             names = [fld.strip() for fld in field_names]
+        else:
+            # Convert the field names with the field_map.
+            names = reader_util.apply_field_map(field_map, names)
 
         last_ts = 0
         for row in reader:

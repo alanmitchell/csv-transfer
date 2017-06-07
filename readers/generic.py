@@ -6,6 +6,7 @@ import logging
 import math
 import pytz
 from dateutil import parser
+import reader_util
 
 # the error logger to use for this module
 logger = logging.getLogger(__name__)
@@ -89,18 +90,9 @@ def generic_reader(filename, chunk_size=1, ts_field=None, ts_tz='UTC',
         else:
             names = headers[name_row - 1]    # name_row is 1-based
             names = [fld.strip() for fld in names]
-            if isinstance(field_map, dict):
-                # field map is a dictionary, mapping some/all old names to
-                # new names
-                names = [field_map.get(fld, fld) for fld in names]
-            elif isinstance(field_map, str):
-                # field map is a string, presumed to be a lambda function for
-                # converting field names
-                try:
-                    conv_func = eval(field_map)
-                    names = [conv_func(nm) for nm in names]
-                except:
-                    raise ValueError('The field_map function "%s" is not valid.' % field_map)
+
+            # Convert the field names with the field_map.
+            names = reader_util.apply_field_map(field_map, names)
 
         # Change the timestamp field name to 'ts'
         if not ts_field:

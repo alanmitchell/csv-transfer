@@ -112,7 +112,11 @@ while True:
 
     try:
         # Loop through each file spec
-        for spec in config['csv_files']:
+        for spec_orig in config['csv_files']:
+
+            # make a copy of the spec so it can be modified without
+            # affecting the original
+            spec = spec_orig.copy()
 
             try:
                 # get and remove key items from the file spec

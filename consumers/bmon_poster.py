@@ -27,6 +27,7 @@ class BMONposter:
 
         # create the HTTP poster to post to BMON
         self.poster = httpPoster2.HttpPoster(post_URL=bmon_store_url,
+                                             post_thread_count=1,    # Counter readings must come in order
                                              post_q_filename=os.path.join(THIS_FOLDER, '%s.db' % poster_id),
                                              post_time_file=os.path.join(THIS_FOLDER, '%s.last_post' % poster_id),
                                              )

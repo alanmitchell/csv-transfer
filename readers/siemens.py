@@ -171,8 +171,15 @@ def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], field_ma
                         if math.isnan(rec[k]):
                             del rec[k]
                     except:
-                        # if value isn't a number, drop this field in this record
-                        del rec[k]
+                        # Look for some other valid strings
+                        lower_val = v.lower().strip()
+                        if lower_val=='on':
+                            rec[k] = 1.0
+                        elif lower_val=='off':
+                            rec[k] = 0.0
+                        else:
+                            # Value is not recognized, so drop this field in this record
+                            del rec[k]
 
                 recs.append(rec)
 

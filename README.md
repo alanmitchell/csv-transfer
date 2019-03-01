@@ -6,7 +6,11 @@
 
 This script reads CSV files that hold time-stamped records of sensor or other numeric values and then transfers those records to web services or other consumers of such records.  The script has the ability to monitor a directory for the addition or update of CSV files, and the script will automatically process those new files.
 
-The script allows for pluggable consumers of the time-stamped records.  Initially, there is one such consumer available: a consumer that posts records to the [BMON Web-Based Sensor Analysis System](https://github.com/alanmitchell/bmon).
+Although lacking some of the features of `csv-transfer`, the [`file-to-bmon` project](https://github.com/alanmitchell/file-to-bmon)
+oftentimes provides a better way to accomplish transfers of sensor data in files to a [BMON Building
+Monitoring System](https://github.com/alanmitchell/bmon) server.
+
+This `csv-transfer` script allows for pluggable consumers of the time-stamped records.  Initially, there is one such consumer available: a consumer that posts records to the [BMON Web-Based Sensor Analysis System](https://github.com/alanmitchell/bmon).
 
 Usage of the script is:
 

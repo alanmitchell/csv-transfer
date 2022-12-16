@@ -6,7 +6,7 @@ import logging
 import math
 import pytz
 from dateutil import parser
-import reader_util
+from . import reader_util
 
 # the error logger to use for this module
 logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ def generic_reader(filename, chunk_size=1, ts_field=None, ts_tz='UTC',
         reader = csv.reader(csvfile, **csv_params)
 
         # read the header rows into a list
-        headers = [reader.next() for i in range(header_rows)]
+        headers = [next(reader) for i in range(header_rows)]
 
         # if field names are specified, use those.  If not, use the proper
         # header row and apply the field_map to possibly change names.
@@ -114,7 +114,7 @@ def generic_reader(filename, chunk_size=1, ts_field=None, ts_tz='UTC',
 
             try:
                 # make a dictionary from the values, with keys as the field names
-                rec = dict(zip(names, row))
+                rec = dict(list(zip(names, row)))
 
                 # remove fields to exclude
                 for fld in exclude_fields:
@@ -137,7 +137,7 @@ def generic_reader(filename, chunk_size=1, ts_field=None, ts_tz='UTC',
                 last_ts = rec['ts']
 
                 # convert all fields to floats (redundant for 'ts' field)
-                for k, v in rec.items():
+                for k, v in list(rec.items()):
                     try:
                         rec[k] = float(v)
                         # do not include NaN values

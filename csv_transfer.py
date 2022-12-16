@@ -160,7 +160,7 @@ while True:
         pickle.dump(last_ts_map, open(last_ts_fn, 'wb'))
 
         if config.get('run_once', False):
-            print "Waiting before exit..."
+            print("Waiting before exit...")
             time.sleep(config.get('run_once_wait_before_stop', 15))
             sys.exit(0)
 

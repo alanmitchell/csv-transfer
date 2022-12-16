@@ -30,7 +30,7 @@ import math
 import string
 import pytz
 from dateutil import parser
-import reader_util
+from . import reader_util
 
 # the error logger to use for this module
 logger = logging.getLogger(__name__)
@@ -123,11 +123,11 @@ def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], field_ma
         # read all lines through the header row, gathering up
         # point names along the way.
         names = []
-        ln = reader.next()
+        ln = next(reader)
         while ln[0] != '<>Date':
             if ln[0].startswith('Point_'):
                 names.append(clean_string(ln[1]))
-            ln = reader.next()
+            ln = next(reader)
 
         # if field names are specified, use those, removing leading and
         # trailing whitespace.
@@ -148,7 +148,7 @@ def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], field_ma
 
                 # make a dictionary from the values, with keys as the field names
                 # Values are found in the 3rd column onward.
-                rec = dict(zip(names, row[2:]))
+                rec = dict(list(zip(names, row[2:])))
 
                 # make the timestamp
                 dt_str = ' '.join(row[:2])
@@ -164,7 +164,7 @@ def siemens_reader(filename, chunk_size=1, ts_tz='UTC', field_names=[], field_ma
                 last_ts = rec['ts']
 
                 # convert all fields to floats (redundant for 'ts' field)
-                for k, v in rec.items():
+                for k, v in list(rec.items()):
                     try:
                         rec[k] = float(v)
                         # do not include NaN values

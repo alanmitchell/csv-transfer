@@ -2,7 +2,7 @@
 application.  See: https://github.com/alanmitchell/bmon
 '''
 import os
-import httpPoster2
+from . import httpPoster2
 
 # The directory path to this file
 THIS_FOLDER = os.path.dirname(__file__)
@@ -44,7 +44,7 @@ class BMONposter:
         readings = []
         for rec in recs:
             ts = int(rec.pop('ts'))
-            for nm, val in rec.items():
+            for nm, val in list(rec.items()):
                 readings.append((ts, nm, val))
 
         # add the readings to the Poster object, including the store key

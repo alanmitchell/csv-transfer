@@ -14,7 +14,7 @@ TO DO:
 import time, sys
 import threading, json, logging
 import requests
-import sqlite_queue
+from . import sqlite_queue
 
 requests.packages.urllib3.disable_warnings()
 

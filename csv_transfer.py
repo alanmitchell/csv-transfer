@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 """Script to monitor and read CSV files containing timestamped records
 and post those records to consumers such as the BMON web-based sensor analysis
 package (see https://github.com/alanmitchell/bmon).
@@ -61,7 +61,8 @@ try:
 
     # load configuration file describing general operation of this script
     # and the files to be loaded.
-    config = yaml.load(open(config_fn))
+
+    config = yaml.load(open(config_fn), yaml.Loader)
 
 except:
     logging.exception('Error in Reading Configuration File.')
